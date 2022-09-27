@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 30 22:43:29 2022
-
-@author: fengt
-"""
-
 import tensorflow as tf
 physical_devices = tf.config.list_physical_devices('GPU') 
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -527,27 +520,7 @@ def discriminator_v2(channels,dsc,drsize):
     # discriminator.compile(optimizer = discriminator_optimizer,loss = 'binary_crossentropy')
     # discriminator.compile(optimizer = 'rmsprop',loss = 'binary_crossentropy',metrics = 'mae')
     # discriminator.compile(optimizer = 'rmsprop',loss = 'binary_crossentropy',metrics = 'mse')
-# %% 18 set transfer weights
-# weights = reconM.layers[3].get_weights()
-# fullgenerator.layers[3].set_weights(weights)
-# weights = reconM.layers[4].get_weights()
-# fullgenerator.layers[4].set_weights(weights)
-# weights = reconM.layers[5].get_weights()
-# fullgenerator.layers[5].set_weights(weights)
-# %% 19 layer trainable
-# fullgenerator.layers[3].trainable = False
-# fullgenerator.layers[4].trainable = False
-# fullgenerator.layers[5].trainable = False
-# # generator.layers[8].trainable = False
-# %% 20 layer trainable
-# fullgenerator.layers[3].trainable = True
-# fullgenerator.layers[4].trainable = True
-# fullgenerator.layers[5].trainable = True
-# # generator.layers[8].trainable = True
-# %% 29-2
-# activation = feature_extractor.predict([tempr,tempg,tempb])
-# print(np.max(activation))
-# %% 38
+# %%
 # from scipy.io import loadmat
 # hadaweightsmodified = loadmat("hadaweightsmodified.mat")
 # hadaweightsmodified = hadaweightsmodified['hadaweightsmodified']
@@ -555,13 +528,6 @@ def discriminator_v2(channels,dsc,drsize):
 # weights = generator.layers[3].get_weights()
 # weights[0] = hadaweightsmodified
 # generator.layers[3].set_weights(weights)
-# %%
-# # layer = generator.layers[5]
-# # feature_extractor = keras.Model(inputs = generator.inputs, outputs = layer.output)
-# activation = feature_extractor.predict([tempr,tempg,tempb])
-# # plt.imshow(activation[0,:,:,:])
-# plt.imshow(activation[0,:,:,:]/np.max(activation[0,:,:,:]))
-
 # %%
 def multihada_reconM(ds1,ds2,csizes):
     """

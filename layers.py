@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 31 18:35:00 2022
-
-@author: fengt
-"""
 import keras
 import tensorflow as tf
 # %% 4
