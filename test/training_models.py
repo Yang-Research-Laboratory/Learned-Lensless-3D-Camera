@@ -1,11 +1,11 @@
-# %%
-ds1=1376
-ds2=2064
-csize=383
-rsize=256
-reconM=reconMRGB(ds1,ds2,csize)
+# %% define model input size
+ds1=1376 # input image size
+ds2=2064 # input image size
+csize=383 # training target size
+rsize=256 # enhancement module output size
+reconM=reconMRGB(ds1,ds2,csize) # generate reconstruction module from template
 reconM.summary()
-# %%
+# %% load training datasets
 from scipy.io import loadmat
 datav1=loadmat("datasets\\data.mat")
 Xr=datav1['Xr']
@@ -20,42 +20,45 @@ Xb=np.expand_dims(Xb,3)
 # Y=loadmat("Y.mat")
 Y=datav1['Y']
 Y=Y.astype('float32')
-# %%
+# %% compile reconM module
 # generator.compile(optimizer='rmsprop',loss='mse',metrics=['mae'])
 reconM.compile(optimizer='rmsprop',loss='binary_crossentropy',metrics=['mae',ssim,psnr])
 # generator.compile(optimizer='rmsprop',loss=custom_objective_lpips,metrics=['mae'])
 # generator.compile(optimizer='rmsprop',loss=custom_objective,metrics=['mae'])
 # generator.compile(optimizer='Adamax',loss='binary_crossentropy',metrics=['mae'])
-# %%
+# %% training reconM
 history=reconM.fit([Xr,Xg,Xb],Y,epochs=120,batch_size=1,verbose=1,shuffle=True)
-# %%
+# %% generate full generator from template
 fullgenerator=fullgeneratorRGB(ds1,ds2,csize,rsize)
 fullgenerator.summary()
-# %%
+# %% compile full generator with customized loss function and weights
 # fullgenerator.compile(optimizer='rmsprop',loss=custom_objective,metrics=['mae'],run_eagerly=True)
 fullgenerator.compile(optimizer='rmsprop',loss=custom_objective,metrics=['mae'],run_eagerly=True)
 # fullgenerator.compile(optimizer='rmsprop',loss='binary_crossentropy',metrics=['mae'],run_eagerly=True)
 # generator.compile(optimizer='rmsprop',loss=custom_objective2,metrics=['mae'])
-# %%
+# %% load enhancement module training dataset
 from scipy.io import loadmat
 datav1=loadmat("datasets\\data_Yenhance.mat")
 Yenhance=datav1['Yenhance']
 Yenhance=Yenhance.astype('float32')
-# %% 19 layer trainable
+# %% 19 set layer trainable
+for lid in range(0,6): # assign Hadamard layers weights
+    weights=reconM.layers[lid].get_weights()
+    fullgenerator.layers[lid].set_weights(weights)
 fullgenerator.layers[3].trainable = False
 fullgenerator.layers[4].trainable = False
 fullgenerator.layers[5].trainable = False
 # fullgenerator.layers[8].trainable = False
-# %%
+# %% U-net enhancement network training
 history=fullgenerator.fit([Xr,Xg,Xb],Yenhance,epochs=5,batch_size=1,verbose=1,shuffle=True)
-# %%
+# %% configure discriminator
 channels=3
 dsc=256
 drsize=256
 discriminator=discriminator_v2(channels,dsc,drsize)
 discriminator.compile(optimizer='rmsprop',loss='binary_crossentropy',metrics='mse')
 discriminator.summary()
-# %%
+# %% pre-train discriminator from
 bsize=20
 disX=np.zeros((bsize*2,drsize,drsize,3))
 for pid in range(0,bsize):
@@ -69,7 +72,7 @@ for pid in range(0,bsize):
   disY[pid]=1
 # %% pretrain discriminator
 history=discriminator.fit(disX,disY,epochs=5,batch_size=5,verbose=1,shuffle=True)
-# %%
+# %% train full generator with adversarial loss
 iterations=150
 import time
 batch_size=1
@@ -96,12 +99,12 @@ for step in range(iterations):
     # if (g_loss[1]<th and step>10):
     #     print('break on iteration',step)
     #     break
-# %%
+# %% set Hadamard layer as trainable
 fullgenerator.layers[3].trainable = True
 fullgenerator.layers[4].trainable = True
 fullgenerator.layers[5].trainable = True
 # generator.layers[8].trainable = True
-# %%
+# %% train full generator with adversarial loss
 iterations=150
 import time
 batch_size=1
@@ -128,3 +131,14 @@ for step in range(iterations):
     # if (g_loss[1]<th and step>10):
     #     print('break on iteration',step)
     #     break
+
+# %%
+# psf=loadmat("psfweights.mat")
+# psf=psf['psfweights']
+# # psf=np.expand_dims(psf,2)
+# psf=np.expand_dims(psf,3)
+# weights=generator.layers[3].get_weights()
+# weights[0]=psf
+# generator.layers[3].set_weights(weights)
+# generator.layers[4].set_weights(weights)
+# generator.layers[5].set_weights(weights)
