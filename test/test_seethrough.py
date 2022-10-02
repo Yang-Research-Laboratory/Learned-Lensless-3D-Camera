@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
-# %%
+# %% load datasets
 from scipy.io import loadmat
 datav1=loadmat("datasets//vdata_seethrough.mat")
 # import h5py
@@ -28,7 +28,7 @@ rawg=Xvg[pid]
 rawg=np.expand_dims(rawg,0)
 rawb=Xvb[pid]
 rawb=np.expand_dims(rawb,0)
-# %%
+# %% load pre-trained reconstruction modules
 reconM1=keras.models.load_model('reconM_1.h5', custom_objects={'Hadamard': Hadamard})
 reconM2=keras.models.load_model('reconM_2.h5', custom_objects={'Hadamard': Hadamard})
 reconM3=keras.models.load_model('reconM_3.h5', custom_objects={'Hadamard': Hadamard})
@@ -45,22 +45,22 @@ reconM13=keras.models.load_model('reconM_13.h5', custom_objects={'Hadamard': Had
 reconM14=keras.models.load_model('reconM_14.h5', custom_objects={'Hadamard': Hadamard})
 # reconM15=keras.models.load_model('15\\reconM_15.h5', custom_objects={'Hadamard': Hadamard})
 # reconM=reconM10
-# %%
+# %% load pre-trained enhancement modules
 fullgenerator = keras.models.load_model('fullgenerator.h5', custom_objects = {'Hadamard': Hadamard,'custom_objective': custom_objective})
-# %%
-ds1=300
-ds2=300
-tsize=256
-enhanceM=enhanceModule(ds1,ds2,tsize)
+# %% define the test field of view
+ds1 = 300 # test FOV x dimension #pixels
+ds2 = 300 # test FOV dimension #pixels
+tsize = 256 # enhancement module output size
+enhanceM = enhanceModule(ds1,ds2,tsize) # generate enhancement model from definition
 enhanceM.summary()
-# %%
+# %% assign pre-trained weights of enhancement module layers
 for lid in range(12,len(fullgenerator.layers)):
     weights=fullgenerator.layers[lid].get_weights()
     enhanceM.layers[lid-6].set_weights(weights)
-# %%
+# %% run reconM and enhanceM for pre-trained distances
 reconMlist = [reconM1,reconM2,reconM3,reconM4,reconM5,reconM6,reconM7,reconM8,reconM9,reconM10,reconM11,reconM12,reconM13,reconM14]
-recon_stack = np.zeros((15,ds1,ds2,3))
-generated_stack = np.zeros((15,tsize,tsize,3))
+recon_stack = np.zeros((15,ds1,ds2,3)) # reconM results
+generated_stack = np.zeros((15,tsize,tsize,3)) # enhanceM post processing results
 # generated_stack3 = np.zeros((15,256,256,3))
 ofs = loadmat("datasets//ofs.mat")
 ofx = ofs['ofx']
@@ -83,7 +83,7 @@ for rid in range(0,14):
     inb = np.expand_dims(inb,0)
     inb = np.expand_dims(inb,3)
     generated_stack[rid] = generatorout(enhanceM,inr,ing,inb)
-# %%
+# %% plot saved reconstructions in FOV
 for rid in range(0,14):
     plt.figure()
     plt.imshow(recon_stack[rid])
