@@ -1,0 +1,3 @@
+Run test_3Dimaging.py to test 3D imaging with vdata_lineoftoys.mat dataset.
+Run test_seethrough.py to test see-through targets with vdata_seethrough.mat dataset.
+Run training_models.py to train your own models.
