@@ -1,1 +1,2 @@
-
+Raw measurements of real objects by our 3D camera as test data for demonstrating 3D imaging.
+To test 3D imaging demonstration, run the code test_3Dimaging.py.
