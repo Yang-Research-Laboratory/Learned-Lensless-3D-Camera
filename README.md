@@ -11,6 +11,7 @@ We provide multiple pre-trained reconstruction modules (reconM) and enhancement 
 ![Diagram of learned lensless 3D camera](https://github.com/Yang-Research-Laboratory/Learned-Lensless-3D-Camera/blob/main/imgs/Picture2.gif)
 ### Test dataset
 We provide several raw measurements of real objects by our 3D camera as test data for demonstrating 3D imaging in shared [**folder**](https://drive.google.com/drive/folders/1HanggfzdR2QkpMYv4vP3KkyXjCebSUaf?usp=sharing).<br />
-To test 3D imaging demonstration, download the test datasets into the datasets folder at same directory, and run the code test_3Dimaging.py.
+To test 3D imaging demonstration, download the test datasets into the datasets folder at same directory, and run the code test_3Dimaging.py.<br />
+To test see-through targets demonstration, download the test datasets into the datasets folder at same directory, and run the code test_seethrough.py.<br />
 ## Training your own models
 To train the models on your customized imagers, you can generated models from our [**templates**](https://github.com/Yang-Research-Laboratory/Learned-Lensless-3D-Camera/blob/main/utils/models.py), specify the size and format of input images in our example [**code**](https://github.com/Yang-Research-Laboratory/Learned-Lensless-3D-Camera/blob/main/test/training_models.py). 
